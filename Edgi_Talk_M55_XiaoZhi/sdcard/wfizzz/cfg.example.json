@@ -1,0 +1,21 @@
+{
+  "_comment": "复制本文件为 cfg.json 并填入真实值。cfg.json 已被 .gitignore 排除，不要提交。",
+  "_comment_xiaozhi": "官方云：host=api.tenclass.net, port=443, ota_port=443, ssl=1。自建服务端（局域网）：host=192.168.x.x, port=8000, ota_port=8003, ssl=0, token 可留空（服务端 auth.enabled=false 时）。改完在串口执行 xzcfg 可确认。",
+  "wifi_ssid": "",
+  "wifi_pass": "",
+  "memo_host": "open.maimemo.com",
+  "memo_token": "",
+  "xiaozhi_host": "api.tenclass.net",
+  "xiaozhi_port": "443",
+  "xiaozhi_ota_port": "443",
+  "xiaozhi_ssl": "1",
+  "xiaozhi_path": "/xiaozhi/v1/",
+  "xiaozhi_token": "",
+  "weather_host": "api.openweathermap.org",
+  "weather_path": "/data/2.5/weather?q=Beijing&units=metric",
+  "weather_key": "",
+  "llm_host": "",
+  "llm_path": "",
+  "llm_key": "",
+  "llm_model": "gpt-4o-mini"
+}

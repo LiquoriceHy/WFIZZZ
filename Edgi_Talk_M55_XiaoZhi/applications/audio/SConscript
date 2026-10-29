@@ -1,0 +1,13 @@
+from building import *
+
+cwd = GetCurrentDir()
+
+# 音频前端组：事件检测 / 频谱 / 麦克风仲裁（xiaozhi 与鼾声抢麦的仲裁）。
+# paho_mqtt.h 由 packages 的全局路径提供。
+path = [cwd, '..']
+
+src = Glob('*.c')
+
+group = DefineGroup('audio', src, depend = [''], CPPPATH = path)
+
+Return('group')

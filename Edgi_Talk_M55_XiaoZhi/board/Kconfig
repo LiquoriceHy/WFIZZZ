@@ -1,0 +1,33 @@
+menu "Xiaozhi Configuration Options"
+
+    config BSP_USING_XiaoZhi
+        bool "Enable XiaoZhi"
+        default n
+        select PKG_USING_CJSON
+        select PKG_USING_WEBCLIENT
+        select PKG_USING_MBEDTLS
+        if BSP_USING_XiaoZhi
+            config PKG_LIB_OPUS
+                bool "Enable OPUS"
+                default y
+            config RT_LWIP_USING_WEBSOCKET
+                bool "Enable LWIP WebSocket"
+                default y
+            config LWIP_ALTCP
+                int "Enable LWIP ALTCP"
+                default 1
+            config LWIP_ALTCP_TLS
+                int "Enable LWIP ALTCP_TLS"
+                default 1
+            config LWIP_ALTCP_TLS_MBEDTLS
+                int "Enable LWIP ALTCP_TLS_MBEDTLS"
+                default 1
+            config BSP_XIAOZHI_SOUND_DEVICE_NAME
+                string "Sound device name"
+                default "sound0"
+            config BSP_XIAOZHI_MIC_DEVICE_NAME
+                string "Mic device name"
+                default "mic0"
+        endif
+
+endmenu

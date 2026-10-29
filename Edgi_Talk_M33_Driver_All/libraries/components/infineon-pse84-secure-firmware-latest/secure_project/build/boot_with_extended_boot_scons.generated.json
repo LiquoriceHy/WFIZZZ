@@ -1,0 +1,29 @@
+{
+    "content": [
+        {
+            "commands": [
+                {
+                    "inputs": [
+                        {
+                            "header-size": "0x400", 
+                            "hex-address": "0x70100000", 
+                            "fill-value": "0xff", 
+                            "file": "C:\\Embedded\\WFIZZZ\\Edgi_Talk_M33_Driver_All\\libraries\\components\\infineon-pse84-secure-firmware-latest\\secure_project\\build\\rtthread.hex", 
+                            "slot-size": "0x240000"
+                        }
+                    ], 
+                    "command": "sign", 
+                    "outputs": [
+                        {
+                            "file": "C:\\Embedded\\WFIZZZ\\Edgi_Talk_M33_Driver_All\\libraries\\components\\infineon-pse84-secure-firmware-latest\\secure_project\\build\\rtthread.hex", 
+                            "format": "ihex"
+                        }
+                    ]
+                }
+            ], 
+            "enabled": true, 
+            "name": "metadata_proj_cm33_s"
+        }
+    ], 
+    "schema-version": 1.0
+}

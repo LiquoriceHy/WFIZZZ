@@ -1,0 +1,20 @@
+import rtconfig   # 目前没用到，可删；等需要 LIBS/LINKFLAGS 时再用
+from building import *
+import os
+
+cwd  = GetCurrentDir()
+# 头文件路径：本目录 + apps/（alarm/app_registry/note）+ net/（lanctl/web_cfg）
+# + 根目录（app_cfg/app_data/screen_saver 等），显式列出，不依赖组定义顺序
+path = [cwd, '..', '../apps', '../net']
+src  = Glob('*.c')    # 只收集本目录 .c；子目录源文件要么在这里补 Glob('子目录/*.c')，要么给子目录写它自己的 SConscript
+
+
+group = DefineGroup('ui', src, depend = [''], CPPPATH = path)
+
+
+list = os.listdir(cwd)
+for item in list:
+    if os.path.isfile(os.path.join(cwd, item, 'SConscript')):
+        group = group + SConscript(os.path.join(item, 'SConscript'))
+
+Return('group')

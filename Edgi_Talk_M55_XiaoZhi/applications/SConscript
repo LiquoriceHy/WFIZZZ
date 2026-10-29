@@ -1,0 +1,54 @@
+import rtconfig
+from building import *
+import os
+
+cwd = GetCurrentDir()
+
+# 应用层已按目录分组：apps/ 功能应用、audio/ 音频前端、net/ 网络服务、
+# snore/ 鼾声检测（含 mtb_ml/NPU 接线，见 snore/SConscript）、
+# ui/ 界面、xiaozhi/ 小智客户端；根目录保留核心框架与跨组胶水文件。
+# 各子目录有自己的 SConscript，由本文件底部的循环自动接入。
+src = Glob('*.c') + Glob('*.cpp')
+
+path = [
+    cwd,
+    # 子目录头文件一律裸文件名 include，跨目录引用靠以下搜索路径。
+    cwd + '/apps',
+    cwd + '/audio',
+    cwd + '/net',
+    cwd + '/snore',
+    # xz_app.c 在 applications/ 根下，但引用的是 xiaozhi/ 里的头
+    # （xiaozhi_port.h 等）。xiaozhi/ 自己的 SConscript 只对它那个组
+    # 生效，搜索域不共享。
+    cwd + '/xiaozhi',
+]
+
+# 以下 CPPDEFINES/LOCAL_CFLAGS 原为鼾声 NPU 编译所加（鼾声源码现已挪入
+# snore/，snore/SConscript 里另有一份完整定义）；这里原样保留，让根目录
+# 文件的编译命令行与整理前保持一致。
+defs = [
+    'COMPONENT_CM55',
+    'COMPONENT_ML_INT8x8',
+    'COMPONENT_ML_TFLM',
+    'COMPONENT_U55',
+    'ETHOSU55',
+    'TF_LITE_STATIC_MEMORY',
+    'CY_ML_MODEL_MEM=.cy_socmem_data',
+    'CY_ML_ARENA_MEM=.cy_socmem_data',
+]
+
+local_arch = ' -mcpu=cortex-m55 -mthumb -mfloat-abi=hard -mfpu=auto'
+local_opt  = ' -Ofast -ffast-math -fno-math-errno -funroll-loops'
+
+group = DefineGroup('Applications', src, depend = [''],
+                    CPPPATH = path,
+                    CPPDEFINES = defs,
+                    LOCAL_CFLAGS = local_arch + local_opt,
+                    LOCAL_CXXFLAGS = local_arch + local_opt + ' -fno-exceptions -fno-rtti')
+
+list = os.listdir(cwd)
+for item in list:
+    if os.path.isfile(os.path.join(cwd, item, 'SConscript')):
+        group = group + SConscript(os.path.join(cwd, item, 'SConscript'))
+
+Return('group')

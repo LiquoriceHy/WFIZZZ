@@ -1,0 +1,77 @@
+# ---------------------------------------------------------------------------
+# WFIZZZ public repository .gitignore
+#
+# 本仓库包含两个完整工程（M55 与 M33）及其第三方依赖，因此这里的规则
+# 只排除「构建产物」与「运行时凭据」，不排除任何编译依赖。
+#
+# 特别注意两个反直觉的点（都踩过）：
+#   1) 不能写 `*.a`——libraries/components/ 下的 asrc.a、libusb_hc_dwc2.a、
+#      libtensorflow-microlite.a 等都是预编译依赖，排除会导致链接失败。
+#   2) 不能写 `*/build/` 或 `build/` 全局排除——
+#      libraries/components/infineon-pse84-secure-firmware-latest/ 下自带厂商
+#      构建产物（rtthread.elf/.hex/.bin），那是 secure boot 的输入，不能删。
+#      因此只排除两个工程根目录的 build/ 与 Debug/。
+# ---------------------------------------------------------------------------
+
+# ---------- 构建产物（按工程根精确定位）----------
+/Edgi_Talk_M55_XiaoZhi/build/
+/Edgi_Talk_M55_XiaoZhi/Debug/
+/Edgi_Talk_M33_Driver_All/build/
+/Edgi_Talk_M33_Driver_All/Debug/
+/ESP32_slave/build/
+/ESP32_slave/build-cmake/
+/ESP32_slave/managed_components/
+/ESP32_slave/sdkconfig
+/ESP32_slave/sdkconfig.old
+
+# ---------- 编译中间文件 ----------
+*.o
+*.d
+*.obj
+*.i
+*.dep
+*.su
+*.sconsign.dblite
+.sconsign.dblite
+rtconfig.pyc
+*.pyc
+__pycache__/
+
+# ---------- 链接产物（工程根，不含厂商预编译固件）----------
+/Edgi_Talk_M55_XiaoZhi/rt-thread.elf
+/Edgi_Talk_M55_XiaoZhi/rtthread.map
+/Edgi_Talk_M33_Driver_All/rt-thread.elf
+/Edgi_Talk_M33_Driver_All/rtthread.map
+
+# ---------- RT-Thread Studio / Eclipse 本地状态 ----------
+.settings/
+.config.old
+.cproject.bak
+*.bak
+*.orig
+*.rej
+*.swp
+*~
+
+# ---------- 设备运行期凭据（绝不入库）----------
+# cfg.json 由设备或配网页在运行时写入 SD 卡，内含 WiFi 密码与各类 API token。
+# 仓库内只保留全空值的模板 cfg.example.json。
+Edgi_Talk_M55_XiaoZhi/sdcard/wfizzz/cfg.json
+Edgi_Talk_M55_XiaoZhi/sdcard/wfizzz/cfg.json.tmp
+Edgi_Talk_M55_XiaoZhi/sdcard/wfizzz/.wtest
+
+# ---------- 大二进制与打包物 ----------
+snore_check/snore_bundle.tgz
+*.tgz
+*.7z
+
+# ---------- ESP-IDF 本地状态 ----------
+/ESP32_slave/.clangd
+/ESP32_slave/.vscode/
+
+# ---------- 编辑器与系统 ----------
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+.DS_Store

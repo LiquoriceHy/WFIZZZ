@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FFFFFF">
+<title>WFIZZZ 配置</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="tb-name">
+    <h1>WFIZZZ 配置</h1>
+    <span class="tb-sub">DEVICE CONFIG / PSE84</span>
+  </div>
+  <div class="tb-fields">
+    <div class="tb-field">
+      <span class="k">连接</span>
+      <span class="v"><span id="dot" class="dot"></span><span id="statustext">连接中…</span></span>
+    </div>
+    <div class="tb-field">
+      <span class="k">地址</span>
+      <span class="v" id="ro-ip">—</span>
+    </div>
+    <div class="tb-field">
+      <span class="k">信号</span>
+      <span class="v" id="ro-rssi">—</span>
+    </div>
+    <div class="tb-field">
+      <span class="k">存储</span>
+      <span class="v" id="ro-store">—</span>
+    </div>
+  </div>
+  <p class="tb-note">
+    本页写入的配置保存在设备 SD 卡的 <code>/sdcard/wfizzz/cfg.json</code>，重启后仍然生效。
+    输入框留空表示不修改该项；密码与令牌只会以掩码形式回显。
+  </p>
+</header>
+
+<main>
+
+  <!-- ================= 图纸主体：分区表单 ================= -->
+  <section class="sheet">
+
+    <!-- 01 网络 -->
+    <article class="card">
+      <h2>网络<span class="secstate" id="st-wifi">未配置</span></h2>
+
+      <div class="row">
+        <label for="wifi_ssid">WiFi 名称（仅 2.4GHz）</label>
+        <div class="input-group">
+          <input id="wifi_ssid" maxlength="32" placeholder="选择或输入 SSID" autocomplete="off">
+          <button type="button" class="btn-ghost" id="btn-scan">扫描</button>
+        </div>
+      </div>
+
+      <div id="scanlist" class="scanlist hidden"></div>
+
+      <div class="row">
+        <label for="wifi_pass">WiFi 密码</label>
+        <input id="wifi_pass" type="password" maxlength="64"
+               placeholder="留空表示不修改" autocomplete="new-password">
+      </div>
+
+      <p class="hint">
+        芯片只支持 2.4GHz 与 WPA2-AES。<span class="warn">5GHz 网络不会出现在扫描结果里。</span>
+      </p>
+
+      <div class="actions">
+        <button type="button" class="btn-primary" id="btn-wifi">保存并连接</button>
+      </div>
+    </article>
+
+    <!-- 02 语音服务 -->
+    <article class="card">
+      <h2>语音服务 <span class="tag">小智</span><span class="secstate" id="st-xiaozhi">未配置</span></h2>
+
+      <div class="row">
+        <label for="xiaozhi_host">服务地址</label>
+        <input id="xiaozhi_host" maxlength="63" placeholder="api.tenclass.net" autocomplete="off">
+      </div>
+
+      <div class="row">
+        <label for="xiaozhi_port">语音端口</label>
+        <input id="xiaozhi_port" maxlength="5" placeholder="443" autocomplete="off"
+               inputmode="numeric">
+      </div>
+
+      <div class="row">
+        <label for="xiaozhi_ota_port">OTA 端口</label>
+        <input id="xiaozhi_ota_port" maxlength="5" placeholder="443" autocomplete="off"
+               inputmode="numeric">
+      </div>
+
+      <div class="row">
+        <label for="xiaozhi_ssl">加密连接</label>
+        <input id="xiaozhi_ssl" maxlength="1" placeholder="1" autocomplete="off"
+               inputmode="numeric">
+        <span class="hint">1 = wss/https（官方云）；0 = ws/http（局域网自建）</span>
+      </div>
+
+      <div class="row">
+        <label for="xiaozhi_path">接口路径</label>
+        <input id="xiaozhi_path" maxlength="95" placeholder="/xiaozhi/v1/" autocomplete="off">
+      </div>
+
+      <div class="row">
+        <label for="xiaozhi_token">访问令牌</label>
+        <input id="xiaozhi_token" type="password" maxlength="95"
+               placeholder="留空表示不修改" autocomplete="new-password">
+        <button type="button" class="btn-link danger" data-clear="xiaozhi_token">清除</button>
+      </div>
+    </article>
+
+    <!-- 03 墨墨背单词 -->
+    <article class="card">
+      <h2>墨墨背单词<span class="secstate" id="st-memo">未配置</span></h2>
+
+      <div class="row">
+        <label for="memo_host">服务地址</label>
+        <input id="memo_host" maxlength="63" placeholder="open.maimemo.com" autocomplete="off">
+      </div>
+
+      <div class="row">
+        <label for="memo_token">开放 API 令牌</label>
+        <input id="memo_token" type="password" maxlength="95"
+               placeholder="留空表示不修改" autocomplete="new-password">
+        <button type="button" class="btn-link danger" data-clear="memo_token">清除</button>
+      </div>
+
+      <p class="hint">
+        从墨墨 App →「我的」→「更多设置」→「实验功能」→「开放 API」获取长期令牌。
+      </p>
+    </article>
+
+    <!-- 04 天气 -->
+    <article class="card">
+      <h2>天气 <span class="tag">心知</span><span class="secstate" id="st-weather">未配置</span></h2>
+
+      <div class="row">
+        <label for="weather_host">服务地址</label>
+        <input id="weather_host" maxlength="63" placeholder="api.seniverse.com" autocomplete="off">
+      </div>
+
+      <div class="row">
+        <label for="weather_path">请求路径</label>
+        <input id="weather_path" maxlength="95"
+               placeholder="/v3/weather/now.json" autocomplete="off">
+      </div>
+
+      <div class="row">
+        <label for="weather_city">城市（拼音）</label>
+        <input id="weather_city" maxlength="23" placeholder="beijing" autocomplete="off">
+      </div>
+
+      <div class="row">
+        <label for="weather_key">API 私钥</label>
+        <input id="weather_key" type="password" maxlength="95"
+               placeholder="留空表示不修改" autocomplete="new-password">
+        <button type="button" class="btn-link danger" data-clear="weather_key">清除</button>
+      </div>
+
+      <p class="hint">
+        路径只填到 <code>.json</code>，城市、语言与单位由固件追加。
+        城市用拼音（<code>shanghai</code>、<code>hangzhou</code>），屏上只有 ASCII 字体。
+        免费版只返回天气现象与气温。
+      </p>
+    </article>
+
+    <!-- 05 文字对话 -->
+    <article class="card">
+      <h2>板上文字对话 <span class="tag">OpenAI 兼容</span><span class="secstate" id="st-llm">未配置</span></h2>
+
+      <div class="row">
+        <label for="llm_host">服务地址</label>
+        <input id="llm_host" maxlength="63" placeholder="api.openai.com" autocomplete="off">
+      </div>
+
+      <div class="row">
+        <label for="llm_path">接口路径</label>
+        <input id="llm_path" maxlength="95" placeholder="/v1/chat/completions" autocomplete="off">
+      </div>
+
+      <div class="row">
+        <label for="llm_key">API Key</label>
+        <input id="llm_key" type="password" maxlength="95"
+               placeholder="留空表示不修改" autocomplete="new-password">
+        <button type="button" class="btn-link danger" data-clear="llm_key">清除</button>
+      </div>
+
+      <div class="row">
+        <label for="llm_model">模型名称</label>
+        <input id="llm_model" maxlength="47" placeholder="gpt-4o-mini" autocomplete="off">
+      </div>
+    </article>
+
+  </section>
+
+  <!-- ================= 附表：状态与操作 ================= -->
+  <aside class="panel">
+
+    <article class="card hero">
+      <h2>运行状态</h2>
+      <div class="readout">
+        <div class="ro-row"><span class="ro-k">WiFi 名称</span><span class="ro-v" id="ro-wifi">—</span></div>
+        <div class="ro-row"><span class="ro-k">配置文件</span><span class="ro-v">/sdcard/wfizzz/cfg.json</span></div>
+      </div>
+      <p class="hint" id="persist-hint">检查中…</p>
+    </article>
+
+    <article class="card">
+      <h2>保存与重启</h2>
+      <p class="hint" style="margin-top:0">
+        修改若干输入框后点「保存全部」一次性写盘；「重启设备」会先保存再重启。
+      </p>
+      <div class="actions">
+        <button type="button" class="btn-secondary" id="btn-save">保存全部</button>
+        <button type="button" class="btn-danger" id="btn-reboot">重启设备</button>
+      </div>
+    </article>
+
+  </aside>
+
+</main>
+
+<div id="toast" class="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

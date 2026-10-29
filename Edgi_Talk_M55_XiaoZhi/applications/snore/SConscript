@@ -1,0 +1,76 @@
+import os
+from building import *
+
+cwd = GetCurrentDir()
+
+# ---- 鼾声推理后端：Infineon 官方 mtb_ml 中间件 + Ethos-U55 ----
+#
+# （原接线在 applications/SConscript，随鼾声源码一起挪进 snore/。）
+# 结构照搬 Edgi-Talk 官方 NPU 例程（DigitRecognition_NPU 的
+# applications/digit_recognition/SConscript）：中间件源码、PDL 的 Ethos-U
+# 驱动、预编译 TFLM 库都在本组内编译/链接，不经过 BSP 的
+# BSP_USING_DEEPCRAFT_AI 开关——那个开关硬依赖 RT_CHERRYUSB_HOST_VIDEO
+# （UVC 摄像头栈），本工程用不到，打开会连带引入一大块 USB 主机代码。
+#
+# 关键点：LOCAL_CFLAGS/CPPDEFINES 只作用于本组，跨 SConscript 组不共享，
+# 所以 COMPONENT_U55 / ETHOSU55 必须在这里定义，否则 snore_infer.cpp 里的
+# mtb_ml 调用会缺少 NPU 路径，链接期整个驱动段还会被 --gc-sections 回收。
+libs_root   = os.path.abspath(os.path.join(cwd, '..', '..', 'libraries')).replace('\\', '/')
+ml_mw       = libs_root + '/Common/deepcraft_ai/third_party/ml-middleware'
+ml_tflm     = libs_root + '/Common/deepcraft_ai/third_party/ml-tflite-micro/COMPONENT_ML_TFLM'
+ethosu_pdl  = libs_root + '/components/mtb-device-support-pse8xxgp/pdl/drivers/third_party/COMPONENT_U55'
+
+src = Glob('*.c') + Glob('*.cpp') + [
+    ml_mw + '/source/mtb_ml.c',
+    ml_mw + '/source/mtb_ml_utils.c',
+    ml_mw + '/source/COMPONENT_ML_TFLM/mtb_ml_model.cpp',
+    ml_mw + '/source/COMPONENT_U55/mtb_ml_ethosu.c',
+    ethosu_pdl + '/src/ethosu_driver.c',
+    ethosu_pdl + '/src/ethosu_device_u55_u65.c',
+    ethosu_pdl + '/src/ethosu_pmu.c',
+]
+
+path = [
+    cwd,
+    '..',
+    '../audio',
+    ml_mw + '/include',
+    ml_mw + '/source/COMPONENT_ML_TFLM',
+    ml_tflm + '/include',
+    ml_tflm + '/include/flatbuffers/include',
+    ml_tflm + '/include/gemmlowp',
+    ml_tflm + '/include/gemmlowp/fixedpoint',
+    ml_tflm + '/include/ethos-u-core-driver',
+    ethosu_pdl + '/include',
+    ethosu_pdl + '/src',
+    # snore_ml_rtos_port.c 复用 cy_rtos_semaphore_*：mtb_ml_ethosu.c 的
+    # ethosu_semaphore_give() 把句柄强转成 cy_semaphore_t 再走 cy_rtos_*，
+    # 两边必须是同一种对象，否则 RT-Thread 的 rt_sem_t 会被当成 FreeRTOS
+    # 队列解引用（实测在 xQueueGenericSend 里总线故障）。
+    libs_root + '/components/abstraction-rtos/include',
+    libs_root + '/components/abstraction-rtos/include/COMPONENT_FREERTOS',
+]
+
+defs = [
+    'COMPONENT_CM55',
+    'COMPONENT_ML_INT8x8',
+    'COMPONENT_ML_TFLM',
+    'COMPONENT_U55',
+    'ETHOSU55',
+    'TF_LITE_STATIC_MEMORY',
+    'CY_ML_MODEL_MEM=.cy_socmem_data',
+    'CY_ML_ARENA_MEM=.cy_socmem_data',
+]
+
+local_arch = ' -mcpu=cortex-m55 -mthumb -mfloat-abi=hard -mfpu=auto'
+local_opt  = ' -Ofast -ffast-math -fno-math-errno -funroll-loops'
+
+group = DefineGroup('snore', src, depend = [''],
+                    CPPPATH = path,
+                    CPPDEFINES = defs,
+                    LOCAL_CFLAGS = local_arch + local_opt,
+                    LOCAL_CXXFLAGS = local_arch + local_opt + ' -fno-exceptions -fno-rtti',
+                    LIBPATH = [ml_tflm + '/COMPONENT_U55/TOOLCHAIN_GCC_ARM'],
+                    LIBS = ['tensorflow-microlite'])
+
+Return('group')

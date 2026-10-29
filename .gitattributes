@@ -1,0 +1,16 @@
+# 只声明二进制类型，不做换行符归一（归一会把 800MB 源码全部标记为改动，
+# 也会破坏 mklinks.bat 等依赖 CRLF 的脚本）。
+#
+# 注意：不要给 *.bin 加规则并期望它被忽略——cjk16.bin 是运行时必需的中文字库，
+# 必须入库。这里只标类型，不影响是否跟踪。
+
+*.bin   binary
+*.tflite binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.pdf   binary
+*.zip   binary
+*.gz    binary

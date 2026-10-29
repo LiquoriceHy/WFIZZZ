@@ -1,0 +1,310 @@
+/* WFIZZZ 配置页 —— 白纸工程制图风
+ *
+ * 母题与树莓派「串口迷宫」页一致：白纸面 + 蓝图纸方格 + 墨线结构 +
+ * 朱红批注（只给活动元素与告警用），填写的值一律等宽字体，像图签
+ * 里的手填栏。页头就是一张图签：名称、字段格、通栏说明。
+ *
+ * 注：变量 / clamp / grid / :focus-visible 都是 2017 年后的特性，
+ * 页面由手机或电脑浏览器打开，不经设备渲染，兼容性不是瓶颈。
+ */
+
+:root{
+  --paper:#FFFFFF; --paper-hi:#FFFFFF; --paper-deep:#F2F5F8;
+  --ink:#24303C; --ink-dim:#64748B;
+  --line:rgba(36,48,60,.28); --line-strong:rgba(36,48,60,.5);
+  --red:#D9482B; --red-deep:#B23A22;
+  --blue:#2B6CB0;
+  --mono:"Cascadia Mono","Consolas","Courier New",monospace;
+}
+
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+
+body{
+  margin:0; min-height:100vh;
+  padding:0 clamp(14px,3vw,24px) 30px;
+  color:var(--ink); font-size:15px; line-height:1.6;
+  font-family:"Bahnschrift","Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  background:
+    repeating-linear-gradient(0deg,rgba(43,108,176,.08) 0 1px,transparent 1px 34px),
+    repeating-linear-gradient(90deg,rgba(43,108,176,.08) 0 1px,transparent 1px 34px),
+    var(--paper);
+}
+
+:focus-visible{outline:2px solid var(--red); outline-offset:2px}
+
+/* ================= 图签（页头） ================= */
+header{
+  max-width:1180px; margin:22px auto 0;
+  border:1px solid var(--line-strong); background:var(--paper-hi);
+  display:flex; align-items:stretch; flex-wrap:wrap;
+}
+
+.tb-name{padding:9px 18px 8px; border-right:1px solid var(--line)}
+.tb-name h1{margin:0; font-size:21px; font-weight:600; letter-spacing:.06em; line-height:1.15}
+.tb-name .tb-sub{
+  display:block; margin-top:2px; font-size:11px; color:var(--ink-dim);
+  letter-spacing:.16em;
+}
+
+.tb-fields{display:flex; margin-left:auto; min-width:0; flex-wrap:wrap}
+.tb-field{
+  border-left:1px solid var(--line); padding:7px 16px; min-width:0;
+  display:flex; flex-direction:column; justify-content:center; gap:1px;
+}
+.tb-field .k{font-size:11px; color:var(--ink-dim)}
+.tb-field .v{
+  min-width:0; font-family:var(--mono); font-size:13px;
+  display:flex; align-items:center; gap:6px; white-space:nowrap;
+}
+#statustext{overflow:hidden; text-overflow:ellipsis}
+
+.tb-note{
+  width:100%; margin:0; border-top:1px solid var(--line);
+  padding:6px 18px; font-size:12px; line-height:1.55; color:var(--ink-dim);
+}
+
+/* ================= 版面 ================= */
+main{
+  max-width:1180px; margin:14px auto 0;
+  display:flex; flex-wrap:wrap; gap:16px;
+  align-items:flex-start; justify-content:center;
+}
+
+/* 左：图纸主体（表单），宽屏两列排卡 */
+.sheet{
+  flex:1 1 640px; min-width:300px;
+  display:grid; gap:16px; align-items:start;
+  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+}
+
+/* 右：附表（状态与操作） */
+.panel{
+  flex:0 1 360px; min-width:290px;
+  display:flex; flex-direction:column; gap:16px;
+}
+
+/* ================= 卡片 ================= */
+.card{
+  position:relative; min-width:0;
+  background:var(--paper-hi); border:1px solid var(--line);
+  border-radius:3px; padding:14px 16px 16px;
+}
+
+.card h2{
+  margin:0 0 12px; padding-bottom:8px;
+  font-size:14px; font-weight:700; color:var(--ink);
+  border-bottom:1px solid var(--line);
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+}
+
+/* 分区状态：这几张卡不是有先后顺序的流程，编号只会假装成信息。
+ * 改为标出该服务是否已配置完整——这才是配置页真要看的东西。 */
+.secstate{
+  margin-left:auto;
+  display:inline-flex; align-items:center; gap:6px;
+  font-family:var(--mono); font-size:11px; font-weight:400;
+  color:#8A99A8; letter-spacing:.02em;
+}
+.secstate::before{
+  content:""; width:7px; height:7px; border-radius:50%;
+  border:1px solid #B9C4CE; background:transparent;
+  transition:background .25s, border-color .25s;
+}
+/* 已备齐 = 实心墨点。朱红留给动作与告警（保存并连接、清除、5GHz 提示、
+ * 角标），配置完整度只是陈述事实，不必抢注意力。 */
+.secstate.ok{color:var(--ink)}
+.secstate.ok::before{background:var(--ink); border-color:var(--ink)}
+
+/* 服务类型注记：图纸里的引注写法，方括号 + 等宽，不加胶囊边框 */
+.tag{
+  font-family:var(--mono); font-size:11px; font-weight:400;
+  color:var(--ink-dim); letter-spacing:.02em;
+}
+.tag::before{content:"["}
+.tag::after{content:"]"}
+
+/* 主卡（运行状态）：四角朱红对位角标，与迷宫页画框同一母题 */
+.card.hero{
+  background-image:
+    linear-gradient(var(--red),var(--red)),linear-gradient(var(--red),var(--red)),
+    linear-gradient(var(--red),var(--red)),linear-gradient(var(--red),var(--red)),
+    linear-gradient(var(--red),var(--red)),linear-gradient(var(--red),var(--red)),
+    linear-gradient(var(--red),var(--red)),linear-gradient(var(--red),var(--red));
+  background-repeat:no-repeat;
+  background-size:16px 2px,2px 16px,16px 2px,2px 16px,
+                  16px 2px,2px 16px,16px 2px,2px 16px;
+  background-position:left top,left top,right top,right top,
+                      left bottom,left bottom,right bottom,right bottom;
+}
+
+.tag{
+  font-size:11px; font-weight:400; color:var(--blue);
+  background:rgba(43,108,176,.08);
+  border:1px solid rgba(43,108,176,.28);
+  border-radius:2px; padding:1px 7px; letter-spacing:.02em;
+}
+
+/* ================= 表单 ================= */
+.row{margin-top:14px}
+
+label{
+  display:block; margin-bottom:6px;
+  font-size:12.5px; color:var(--ink-dim); letter-spacing:.02em;
+}
+
+input{
+  width:100%; min-height:46px; padding:11px 13px;
+  font-family:var(--mono); font-size:16px;   /* 16px 以下 iOS 会自动放大页面 */
+  color:var(--ink); background:var(--paper-deep);
+  border:1px solid var(--line-strong); border-radius:3px;
+  outline:none; appearance:none;
+  transition:border-color .15s, box-shadow .15s, background .15s;
+}
+
+input::placeholder{color:#9AA7B4; font-size:14px}
+
+input:focus{
+  background:var(--paper-hi); border-color:var(--red);
+  box-shadow:0 0 0 3px rgba(217,72,43,.12);
+}
+
+.input-group{display:flex; gap:8px}
+.input-group input{flex:1 1 auto; min-width:0}
+
+/* ================= 按钮 ================= */
+button{
+  min-height:44px; padding:9px 14px;
+  font-family:inherit; font-size:13px;
+  color:var(--ink); background:transparent;
+  border:1px solid var(--line-strong); border-radius:3px;
+  cursor:pointer;
+  transition:color .15s, border-color .15s, background .15s;
+  -webkit-user-select:none; user-select:none;
+}
+
+button:hover:not(:disabled){border-color:var(--red); color:var(--red-deep)}
+button:active:not(:disabled){background:rgba(217,72,43,.07)}
+button:disabled{opacity:.35; cursor:not-allowed}
+
+.btn-primary{
+  background:var(--red); border-color:var(--red);
+  color:#fff; font-weight:700; letter-spacing:.04em;
+}
+.btn-primary:hover:not(:disabled){
+  background:var(--red-deep); border-color:var(--red-deep); color:#fff;
+}
+
+.btn-secondary{background:transparent; color:var(--ink)}
+.btn-danger{background:transparent; color:var(--ink)}
+.btn-danger:hover:not(:disabled){border-color:var(--red); color:var(--red-deep)}
+
+.btn-ghost{flex:0 0 auto; min-width:74px; padding:0 14px; background:transparent}
+.btn-ghost:hover:not(:disabled){background:rgba(217,72,43,.06)}
+
+.btn-link{
+  display:inline-block; min-height:0; margin-top:8px; padding:2px 0;
+  font-size:12.5px; color:var(--ink-dim);
+  background:none; border:none;
+  text-decoration:underline; text-underline-offset:3px;
+}
+.btn-link:hover:not(:disabled){border:none; color:var(--red)}
+.btn-link.danger{color:var(--red-deep)}
+
+.actions{display:flex; gap:10px; margin-top:16px; flex-wrap:wrap}
+.actions > button{flex:1 1 0; min-width:120px}
+
+/* ================= 扫描结果（附表） ================= */
+.scanlist{
+  margin-top:10px; max-height:300px; overflow-y:auto;
+  background:var(--paper-hi);
+  border:1px solid var(--line); border-radius:3px;
+  -webkit-overflow-scrolling:touch;
+}
+.scanlist.hidden{display:none}
+
+.scanitem{
+  display:flex; align-items:center; gap:10px;
+  padding:11px 13px; border-bottom:1px solid var(--line);
+  cursor:pointer; transition:background .12s;
+}
+.scanitem:last-child{border-bottom:0}
+.scanitem:hover{background:rgba(217,72,43,.05)}
+.scanitem:active{background:rgba(217,72,43,.10)}
+
+.scanitem .name{
+  flex:1 1 auto; font-size:14px;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.scanitem .meta{
+  flex:0 0 auto; font-family:var(--mono);
+  font-size:11.5px; color:var(--ink-dim);
+}
+.scanitem .lock{flex:0 0 auto; font-size:12px; color:var(--ink-dim)}
+
+.scanempty{padding:16px 13px; font-size:13px; color:var(--ink-dim); text-align:center}
+
+/* ================= 只读读数 ================= */
+.readout{
+  margin-top:12px; padding-top:10px;
+  border-top:1px solid var(--line);
+  display:flex; flex-direction:column; gap:6px;
+}
+.ro-row{display:flex; gap:10px; align-items:baseline; font-size:12px}
+.ro-k{flex:0 0 auto; color:var(--ink-dim)}
+.ro-v{
+  flex:1 1 auto; min-width:0; text-align:right;
+  font-family:var(--mono); font-size:11.5px; color:var(--ink);
+  word-break:break-all;
+}
+
+/* ================= 提示 ================= */
+.hint{margin:10px 0 0; font-size:12px; line-height:1.65; color:var(--ink-dim)}
+
+.hint code{
+  font-family:var(--mono); font-size:11.5px;
+  color:var(--red-deep); background:var(--paper-deep);
+  border:1px solid var(--line); border-radius:2px; padding:0 4px;
+}
+
+.warn{color:var(--red-deep)}
+
+/* ================= 状态点 ================= */
+.dot{
+  display:inline-block; width:9px; height:9px; border-radius:50%;
+  background:#B9C4CE; flex:0 0 auto; transition:background .25s;
+}
+.dot.ok{background:var(--blue); box-shadow:0 0 6px rgba(43,108,176,.5)}
+.dot.warn{background:#D9A22B; box-shadow:0 0 6px rgba(217,162,43,.45)}
+.dot.err{background:var(--red); box-shadow:0 0 6px rgba(217,72,43,.5)}
+
+/* ================= Toast ================= */
+.toast{
+  position:fixed; left:50%; bottom:26px; z-index:100;
+  transform:translate(-50%,16px);
+  max-width:calc(100vw - 40px); padding:12px 20px;
+  font-size:13.5px; text-align:center;
+  color:var(--ink); background:var(--paper-hi);
+  border:1px solid var(--line-strong); border-radius:3px;
+  box-shadow:0 10px 30px rgba(36,48,60,.18);
+  opacity:0; pointer-events:none;
+  transition:opacity .2s, transform .2s;
+}
+.toast.show{opacity:1; transform:translate(-50%,0)}
+.toast.ok{border-color:rgba(43,108,176,.55); background:#F3F7FC; color:var(--blue)}
+.toast.err{border:1px dashed var(--red); background:#FDF4F2; color:var(--red-deep)}
+
+/* ================= 窄屏 ================= */
+@media (max-width:640px){
+  header{margin-top:14px}
+  .tb-name{width:100%; border-right:none; border-bottom:1px solid var(--line)}
+  .tb-fields{width:100%; margin-left:0}
+  .tb-field{flex:1 1 auto; padding:6px 12px}
+  .tb-field:first-child{border-left:none}
+  .sheet{grid-template-columns:1fr}
+  .panel{flex:1 1 100%}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important; animation:none !important}
+}

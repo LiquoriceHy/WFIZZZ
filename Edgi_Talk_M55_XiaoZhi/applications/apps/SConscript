@@ -1,0 +1,14 @@
+from building import *
+
+cwd = GetCurrentDir()
+
+# 功能应用组：闹钟 / 应用注册表 / 墨墨卡片 / 便签。
+# app_registry.c 还会引用 audio/ net/ snore/ ui/ 的头文件，
+# 跨目录搜索路径在这里显式列全，不依赖组的定义顺序。
+path = [cwd, '..', '../audio', '../net', '../snore', '../ui']
+
+src = Glob('*.c')
+
+group = DefineGroup('apps', src, depend = [''], CPPPATH = path)
+
+Return('group')

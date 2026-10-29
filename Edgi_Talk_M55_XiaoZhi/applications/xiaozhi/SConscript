@@ -1,0 +1,23 @@
+from building import *
+import os
+
+cwd = GetCurrentDir()
+
+# 小智客户端组：核心协议/音频 + 适配层（xiaozhi_port.c）+ iot/ + mcp/
+# 官方 ui/3d_demo（3D 表情+TTF）、webnet/（配网，用 wifi_auto）、
+# adc/、pwm/、wake_word/（EI 模型，二期）未随恢复；
+# port/ 提供 xiaozhi.h:13 引用的表情桩头与 UI 重定向实现。
+path = []
+path += [cwd]
+path += [cwd + '/port', cwd + '/ui', cwd + '/iot', cwd + '/mcp']
+
+src = Glob('*.c') + Glob('*.cpp')
+
+group = DefineGroup('xiaozhi', src, depend = [''], CPPPATH = path)
+
+list = os.listdir(cwd)
+for item in list:
+    if os.path.isfile(os.path.join(cwd, item, 'SConscript')):
+        group = group + SConscript(os.path.join(item, 'SConscript'))
+
+Return('group')

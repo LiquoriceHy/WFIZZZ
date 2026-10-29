@@ -1,0 +1,14 @@
+from building import *
+
+cwd = GetCurrentDir()
+
+# 网络服务组：WiFi 自动连接 / 网页配置 / LAN 设备 MQTT 控制 / 天气。
+# web_cfg.c 引用 snore/ 的 snore_rt.h，这里显式补上；
+# paho_mqtt.h 由 packages 的全局路径提供。
+path = [cwd, '..', '../snore']
+
+src = Glob('*.c')
+
+group = DefineGroup('net', src, depend = [''], CPPPATH = path)
+
+Return('group')

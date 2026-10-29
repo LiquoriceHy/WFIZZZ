@@ -1,0 +1,163 @@
+# Third-Party Notices
+
+This repository is a firmware project for the Infineon PSoC Edge (Edgi-Talk)
+platform. The MIT license in `LICENSE` covers only the original code written
+for this project. The components listed below are third-party works, are
+included unmodified (except where noted), and remain under their own licenses.
+
+All license texts referenced here ship inside the directories named below.
+Where a component's license file was stripped by the upstream BSP packaging,
+the applicable upstream license is named and the reader is directed to the
+upstream project.
+
+---
+
+## 1. RT-Thread real-time operating system
+
+- **Location:** `Edgi_Talk_M55_XiaoZhi/rt-thread/`,
+  `Edgi_Talk_M33_Driver_All/rt-thread/`
+- **License:** Apache License 2.0 (`rt-thread/LICENSE`)
+- **Upstream:** https://github.com/RT-Thread/rt-thread
+- **Copyright:** RT-Thread Development Team
+
+## 2. RT-Thread software packages
+
+- **Location:** `Edgi_Talk_M55_XiaoZhi/packages/`, `Edgi_Talk_M33_Driver_All/packages/`
+- **Components:** paho-mqtt, webnet, webclient, cJSON, mbedTLS, opus,
+  netutils, wavplayer, aht10, lsm6ds3tr, CoreMark, optparse
+- **License:** each package retains its own license file in its directory.
+  paho-mqtt is EPL-1.0 / EDL-1.0; mbedTLS is Apache-2.0; cJSON is MIT;
+  opus is BSD-3-Clause; the remainder are Apache-2.0 or MIT.
+- **Upstream:** https://github.com/RT-Thread/packages
+
+## 3. Infineon PSoC Edge device support and middleware
+
+- **Location:** `Edgi_Talk_M55_XiaoZhi/libraries/components/`,
+  `Edgi_Talk_M33_Driver_All/libraries/components/`,
+  `Edgi_Talk_M55_XiaoZhi/libraries/Common/`,
+  `Edgi_Talk_M33_Driver_All/libraries/Common/`,
+  `Edgi_Talk_M55_XiaoZhi/libs/`, `Edgi_Talk_M33_Driver_All/libs/`
+- **Components:** mtb-device-support-pse8xxgp, Infineon CMSIS,
+  wifi-host-driver (WHD), mtb_ml / ml-middleware, ASRC, emusb-device,
+  littlefs, infineon-pse84-secure-firmware
+- **License:** Infineon Technologies component licenses, as shipped per
+  directory. wifi-host-driver carries an MIT license
+  (`wifi-host-driver/LICENSE.txt`) in addition to Infineon's own terms.
+- **Upstream:** Infineon ModusToolbox™ device packs, distributed with the
+  Edgi-Talk BSP by RT-Thread.
+- **Note:** `libraries/Common/board/ports/` contains local modifications for
+  this board (see section 7).
+
+## 4. LVGL graphics library
+
+- **Location:** `Edgi_Talk_M55_XiaoZhi/libraries/components/lvgl_9.2.0/`
+- **Version:** 9.2.0
+- **License:** MIT (LVGL 9.x). The upstream license file is not included in
+  the BSP-packaged copy; the authoritative text is at
+  https://github.com/lvgl/lvgl/blob/master/LICENCE.txt
+- **Copyright:** LVGL Kft.
+- **Note:** individual bundled libraries under `src/libs/` (QR code generator,
+  stb_truetype, etc.) carry their own permissive licenses, stated in each
+  file's header.
+
+## 5. CherryUSB
+
+- **Location:** `Edgi_Talk_M55_XiaoZhi/libraries/components/CherryUSB-1.6.0/`,
+  `Edgi_Talk_M33_Driver_All/libraries/components/CherryUSB-1.6.0/`
+- **License:** Apache License 2.0 (`CherryUSB-1.6.0/LICENSE`)
+- **Upstream:** https://github.com/cherry-embedded/CherryUSB
+
+## 6. Edge Impulse SDK
+
+- **Location:** `Edgi_Talk_M55_XiaoZhi/edge-impulse/edge-impulse-sdk/`
+- **License:** BSD 3-Clause Clear (`edge-impulse-sdk/LICENSE.3-clause-bsd-clear`),
+  copyright EdgeImpulse Inc. Sub-directories containing third-party code
+  (CMSIS-DSP, TensorFlow Lite Micro, KissFFT, flatbuffers) are listed in
+  `edge-impulse-sdk/LICENSE` and keep their own licenses (Apache-2.0 / BSD).
+- **Upstream:** https://github.com/edgeimpulse/inferencing-sdk-cpp
+
+## 7. XiaoZhi voice assistant client
+
+- **Location:** `Edgi_Talk_M55_XiaoZhi/applications/xiaozhi/`
+- **License:** Apache License 2.0, as part of the RT-Thread Edgi-Talk XiaoZhi
+  sample (`projects/Edgi_Talk_M55_XiaoZhi/applications/xiaozhi/`).
+- **Copyright:** RT-Thread Development Team
+- **Local modifications in this repository:** the files `xiaozhi_port.c/.h`,
+  `xz_server_cfg.c/.h`, and `mcp/mcp_local_tools.cpp` are original to this
+  project. `xiaozhi.cpp`, `xiaozhi_audio.cpp`, and `mcp/mcp_server.cpp` carry
+  local changes to integrate with this board's audio and configuration layers.
+
+## 8. YAMNet model
+
+- **Location:** `snore_check/model/lite-model_yamnet_tflite_1.tflite`,
+  `snore_check/mcu/yamnet_cal.tflite`, `tools/vela_out/yamnet_cal_vela.tflite`
+- **License:** Apache License 2.0
+- **Upstream:** Google YAMNet, https://tfhub.dev/google/lid/5 (audio set
+  classifier). The int8 variant under `snore_check/mcu/` is a locally
+  quantized derivative of the same model.
+- **Note:** `yamnet_cal_vela.tflite` is produced by Arm Ethos-U Vela from
+  `yamnet_cal.tflite`; regeneration instructions are in `snore_check/mcu/README.md`.
+
+## 9. Chinese bitmap font
+
+- **Location:** `Edgi_Talk_M55_XiaoZhi/sdcard/wfizzz/cjk16.bin`
+- **Content:** 16px, 4bpp bitmap glyphs generated from a GB2312 character set.
+- **Note:** generated with `lv_font_conv` from a font whose redistribution
+  terms permit embedding. Regenerate with `lv_font_conv` from the original
+  font using the GB2312 range; do not include the ASCII range, or English
+  text will render with the CJK face instead of the fallback font.
+
+## 10. ESP-IDF managed components (ESP32-C6 firmware)
+
+- **Location:** `ESP32_slave/main/idf_component.yml`,
+  `ESP32_slave/dependencies.lock`
+- **Not vendored:** these components are downloaded by the ESP-IDF component
+  manager at build time into `ESP32_slave/managed_components/` (gitignored).
+- **Components and licenses:**
+  - espressif/mqtt 1.0.0 — Apache-2.0
+  - espressif/led_strip 3.1.1 — Apache-2.0
+  - espressif/cjson 1.7.19~2 — MIT
+  - lvgl/lvgl 8.4.0 — MIT
+- **Upstream:** https://components.espressif.com/
+
+## 11. Vernon ST7789 driver
+
+- **Location:** `ESP32_slave/driver/Vernon_ST7789T/`
+- **License:** Apache-2.0
+- **Copyright:** Espressif Systems (Shanghai) CO LTD
+- **Note:** copied from the ESP-IDF `esp_lcd` examples; unmodified.
+
+## 12. ESP-IDF itself
+
+- **Version:** 6.0.0 (`dependencies.lock`)
+- **License:** Apache-2.0
+- **Note:** not vendored; install the matching ESP-IDF release to build
+  `ESP32_slave/`.
+- **Upstream:** https://github.com/espressif/esp-idf
+
+---
+
+If you believe a component in this repository is misattributed or lacks a
+required notice, please open an issue.
+
+---
+
+# 第三方组件声明（中文摘要）
+
+本仓库的 MIT 许可证仅覆盖本项目的原创代码。以下内容为第三方作品，按各自
+原有许可证分发，许可证全文见所列目录内的 LICENSE 文件：
+
+| 组件 | 位置 | 许可证 |
+|---|---|---|
+| RT-Thread 内核 | `*/rt-thread/` | Apache-2.0 |
+| RT-Thread 软件包 | `*/packages/` | 各包自带（Apache-2.0 / MIT / EPL-1.0 / BSD-3） |
+| Infineon PSoC Edge 支持包 | `*/libraries/`、`*/libs/` | Infineon 组件许可 + WHD 的 MIT |
+| LVGL 9.2.0 | `libraries/components/lvgl_9.2.0/` | MIT（许可文件未随 BSP 打包，见上游） |
+| CherryUSB 1.6.0 | `libraries/components/CherryUSB-1.6.0/` | Apache-2.0 |
+| Edge Impulse SDK | `edge-impulse/edge-impulse-sdk/` | BSD-3-Clause Clear |
+| 小智语音客户端 | `applications/xiaozhi/` | Apache-2.0（RT-Thread） |
+| YAMNet 模型 | `snore_check/model/`、`tools/vela_out/` | Apache-2.0（Google） |
+
+其中 `applications/xiaozhi/` 下的 `xiaozhi_port.*`、`xz_server_cfg.*`、
+`mcp/mcp_local_tools.cpp` 为本项目原创；`xiaozhi.cpp`、`xiaozhi_audio.cpp`、
+`mcp/mcp_server.cpp` 含为适配本板而做的本地修改。
